@@ -70,6 +70,10 @@
 .contribute-button:hover {
   background-color: #45a049;
 }
+.info-message {
+  color: #0066cc;
+  margin-top: 5px;
+}
 </style>
 
 </head>
@@ -158,12 +162,23 @@
       widget.open();
     });
 
-    // Kiểm tra CORS
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('https://api.cloudinary.com/v1_1/dmzxll8xc/ping', { mode: 'cors' })
-        .then(() => console.log('CORS configured properly'))
-        .catch(err => console.warn('CORS check failed:', err));
+        document.getElementById('upload-button').addEventListener('click', () => {
+      // Thêm trạng thái "Đang chuẩn bị"
+      const statusElement = document.getElementById('upload-status');
+      statusElement.textContent = 'Đang mở trình tải lên...';
+      statusElement.className = 'info-message';
+      
+      // Mở widget
+      widget.open();
+      
+      // Kiểm tra Cloudinary có sẵn sàng không
+      if (typeof cloudinary === 'undefined') {
+        statusElement.textContent = 'Lỗi: Trình tải lên chưa sẵn sàng';
+        statusElement.className = 'error-message';
+        return;
+      }
     });
+
   </script>
 </body>
 </html>
