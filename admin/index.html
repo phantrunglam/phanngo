@@ -61,7 +61,12 @@
 
     // Render comments
     function renderComments(comments) {
-      const container = document.getElementById('comments-list');
+       
+        const container = document.getElementById('comments-list');
+        if (!comments.length) {
+            container.innerHTML = '<p class="empty">Chưa có bình luận nào</p>';
+        return;
+            }
       container.innerHTML = comments.map(comment => `
         <div class="card">
           <p><strong>${comment.name}</strong> (${comment.email})</p>
@@ -72,6 +77,8 @@
         </div>
       `).join('');
     }
+
+
 
     // Render images
     function renderImages(images) {
