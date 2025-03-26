@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Panel</title>
+  <title>Admin - Quản lý Ảnh</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .submission { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; }
+    img { max-width: 200px; display: block; }
+  </style>
 </head>
 <body>
-  <h1>Welcome to Admin Panel</h1>
   <div data-netlify-identity-menu></div>
+  <h1>Danh sách Đóng Góp</h1>
+  <div id="submissions"></div>
+
+  <script>
+    // Gọi Netlify Function để lấy dữ liệu
+    fetch('/.netlify/functions/get-submissions')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('submissions');
+        data.forEach(item => {
+          container.innerHTML += `
+            <div class="submission">
+              <p><strong>Email:</strong> ${item['user-email']}</p>
+              ${item['photo-url'] ? `
+                <a href="${item['photo-url']}" target="_blank">Xem ảnh</a>
+                <img src="${item['photo-url']}">
+              ` : 'Không có ảnh'}
+            </div>
+          `;
+        });
+      });
+  </script>
 </body>
 </html>

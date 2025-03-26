@@ -204,3 +204,37 @@ Commit và push lại code:
 
 
 
+
+
+
+
+Lỗi Admin UI
+
+https://app.netlify.com/sites/phanngo/identity
+
+
+dùng terminal commandline
+
+curl -X POST "https://api.netlify.com/api/v1/sites/phanngo/identity" \
+  -H "Authorization: Bearer [api-token]" \
+  -H "Content-Type: application/json" \
+  -d '{"admin_url": "/admin"}'
+
+
+Netlify SIDE_ID
+# MY_SITE_ID
+
+| Deploy context                  | Value                                |
+| ------------------------------- | ------------------------------------ |
+| Production                      | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Deploy Preview                  | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Branch deploy                   | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Local development (Netlify CLI) | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+
+Netlify PAT
+name: Giapha-Site-Token
+nfp_FjfGWkGHrdoHek5qwF3Z1LYqXZJMwo6Ce829
+
+
+curl -H "Authorization: Bearer nfp_123..." \
+  "https://api.netlify.com/api/v1/sites/{8dbdf322-cda0-4f0e-909f-a3e4863452b7}/submissions"

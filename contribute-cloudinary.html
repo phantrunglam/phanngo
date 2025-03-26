@@ -14,6 +14,10 @@
 </head>
 <body>
   <form name="contribute" netlify action="/thank-you.html">
+    <!-- Trường chống spam -->
+  <p class="hidden">
+    <label>Không điền vào đây: <input name="bot-field"></label>
+  </p>
     <!-- Các trường thông tin cũ -->
     <label>Họ tên: <input type="text" name="name" required></label>
     <label>Email: <input type="email" name="email" required></label>
@@ -24,6 +28,7 @@
     <button type="button" id="upload-button">Chọn ảnh</button>
     <div id="preview"></div>
     <input type="hidden" name="photo-url" id="photo-url">
+
 
     <!-- Nút gửi form -->
     <button type="submit">Gửi đóng góp</button>
@@ -40,6 +45,7 @@
       maxFileSize: 5000000 // Giới hạn 5MB
     }, (error, result) => {
       if (result.event === 'success') {
+        document.getElementById('photo-url').value = result.info.secure_url;
         // Hiển thị ảnh preview
         document.getElementById('preview').innerHTML = `
           <img src="${result.info.secure_url}" alt="Ảnh đã tải lên">

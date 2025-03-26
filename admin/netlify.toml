@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+
+[context.production.environment]
+  SITE_ID = "your-site-id"
+  NETLIFY_TOKEN = "your-api-token"
+
+[context.deploy-preview.environment]
+  SITE_ID = "preview-site-id"
+  
