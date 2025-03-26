@@ -34,22 +34,6 @@
       });
     }
 
-    // Trong admin/index.html
-    async function loadStats() {
-    const [cloudinaryRes, netlifyRes] = await Promise.all([
-        fetch('/.netlify/functions/test-cloudinary'),
-        fetch('/.netlify/functions/test-netlify')
-    ]);
-
-    document.getElementById('cloudinary-status').innerHTML = `
-        <p>Cloudinary: ${cloudinaryRes.details.rate_limit_remaining} requests remaining</p>
-    `;
-    
-    document.getElementById('netlify-status').innerHTML = `
-        <p>Netlify Site: ${netlifyRes.name}</p>
-    `;
-    }
-    
     // Load dữ liệu
     async function loadData() {
       const response = await fetch('/.netlify/functions/get-submissions');
