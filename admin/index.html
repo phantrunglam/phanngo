@@ -10,28 +10,45 @@
   </style>
 </head>
 <body>
-  <div data-netlify-identity-menu></div>
-  <h1>Danh sách Đóng Góp</h1>
-  <div id="submissions"></div>
+    <div data-netlify-identity-menu></div>
+    <h1>Welcome to Admin Panel</h1>
+    <div id="submissions"><!-- Dữ liệu sẽ hiện ở đây --></div>
 
   <script>
-    // Gọi Netlify Function để lấy dữ liệu
-    fetch('/.netlify/functions/get-submissions')
-      .then(res => res.json())
-      .then(data => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/.netlify/functions/get-submissions');
+        
+        if (!response.ok) {
+          throw new Error(`Lỗi HTTP: ${response.status}`);
+        }
+  
+        const data = await response.json();
         const container = document.getElementById('submissions');
+  
+        if (data.length === 0) {
+          container.innerHTML = '<p>Không có dữ liệu.</p>';
+          return;
+        }
+  
         data.forEach(item => {
           container.innerHTML += `
             <div class="submission">
-              <p><strong>Email:</strong> ${item['user-email']}</p>
+              <p><strong>Email:</strong> ${item['user-email'] || 'N/A'}</p>
               ${item['photo-url'] ? `
                 <a href="${item['photo-url']}" target="_blank">Xem ảnh</a>
-                <img src="${item['photo-url']}">
+                <img src="${item['photo-url']}" width="200">
               ` : 'Không có ảnh'}
             </div>
           `;
         });
-      });
+      } catch (error) {
+        console.error('Lỗi fetch:', error);
+        document.getElementById('submissions').innerHTML = `
+          <p style="color: red;">Lỗi tải dữ liệu: ${error.message}</p>
+        `;
+      }
+    });
   </script>
 </body>
 </html>
