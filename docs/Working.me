@@ -1,0 +1,175 @@
+
+
+2025-03-26
+
+mkdir net-gia-pha
+cd net-gia-pha
+touch index.html
+
+Mở visual studio và quản lý thư mục từ đây.
+
+Nội dung index.html
+-- start --
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gia Phả Dòng Tộc</title>
+  <!-- Netlify Identity -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Disqus -->
+  <script id="dsq-count-scr" src="//YOUR-DISQUS-SHORTNAME.disqus.com/count.js" async></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Gia Phả Dòng Tộc</h1>
+    <!-- Nút đăng nhập Netlify Identity -->
+    <div data-netlify-identity-menu></div>
+  </header>
+
+  <main>
+    <!-- Form đóng góp thông tin (Netlify Forms) -->
+    <section class="contribute-form">
+      <h2>Đóng Góp Thông Tin Gia Đình</h2>
+      <form name="contribute" netlify>
+        <label for="name">Họ và tên:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="message">Thông tin đóng góp:</label>
+        <textarea id="message" name="message" required></textarea>
+        
+        <button type="submit">Gửi</button>
+      </form>
+    </section>
+
+    <!-- Khu vực bình luận (Disqus) -->
+    <section class="comments">
+      <h2>Bình Luận</h2>
+      <div id="disqus_thread"></div>
+      <script>
+        (function() {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://YOUR-DISQUS-SHORTNAME.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    </section>
+  </main>
+
+  <!-- Script xử lý Netlify Identity -->
+  <script>
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on("init", user => {
+        if (!user) netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+
+-- end --
+
+Nội dung css/style.css
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .contribute-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+  
+  .contribute-form label {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .contribute-form input,
+  .contribute-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .contribute-form button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .contribute-form button:hover {
+    background: #45a049;
+  }
+  
+  #disqus_thread {
+    margin-top: 30px;
+  }
+
+
+
+2. Quay lại tạo repository trên Github.
+2.1 Tạo repository phanngo
+
+3. Kết nối origin folder với remote (Github)
+cd net-gia-pha
+git init
+git add .
+git remote add origin https://github.com/phantrunglam/phanngo.git
+git remote -v
+origin	https://github.com/phantrunglam/phanngo.git (fetch)
+origin	https://github.com/phantrunglam/phanngo.git (push)
+
+Lúc này bạn sẽ thấy URL chính xác.
+
+5. Push code lên repository mới
+git push -u origin main
+
+dùng ssh để push
+Bước 3: Cấu hình Git dùng SSH
+git remote set-url origin git@github.com:phantrunglam/phanngo.git
+git remote -v
+kết quả:
+origin	git@github.com:phantrunglam/phanngo.git (fetch)
+origin	git@github.com:phantrunglam/phanngo.git (push)
+
+Nếu repo GitHub đã có sẵn file và bạn gặp lỗi khi git push (ví dụ: rejected hoặc non-fast-forward), đây là cách khắc phục chi tiết:
+
+1. Nguyên nhân
+Repo GitHub đã có code khác (do bạn khởi tạo README/license khi tạo repo, hoặc ai đó đã push code lên).
+
+Local repo của bạn chưa đồng bộ với remote → Git từ chối push để tránh ghi đè dữ liệu.
+
+2. Cách khắc phục
+Có 2 phương án tùy theo nhu cầu:
+
+Phương án 1: Đồng bộ local với remote (giữ lại code trên GitHub)
+(Áp dụng nếu code trên GitHub là quan trọng và bạn muốn merge với code local)
+
+
+
