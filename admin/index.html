@@ -68,6 +68,7 @@
       // Kiểm tra đăng nhập và quyền admin
       if (window.netlifyIdentity) {
         netlifyIdentity.on('init', (user) => {
+          console.log("Netlify Identity đã khởi tạo, user:", user); // Kiểm tra log
           if (!user) {
             // Chưa đăng nhập -> chuyển hướng về trang chủ
             window.location.href = '/';
@@ -81,6 +82,7 @@
                   Bạn không có quyền truy cập trang này. Vui lòng liên hệ quản trị viên.
                 </div>
               `;
+              netlifyIdentity.open(); // Mở popup đăng nhập
             }
           }
         });
@@ -90,20 +92,25 @@
             Lỗi tải hệ thống xác thực. Vui lòng thử lại.
           </div>
         `;
+        console.error("Netlify Identity Widget không tải được");
+        
       }
 
       // Hàm tải danh sách submissions
       async function loadSubmissions() {
         try {
+          console.log("Đang gọi API..."); // Log 1
           adminContent.innerHTML = '<p>Đang tải dữ liệu...</p>';
           
-          const response = await fetch('/.netlify/functions/get-submissions');
+          const response = await fetch('/netlify/functions/get-submissions');
+          console.log("API response status:", response.status); // Log 2
           
           if (!response.ok) {
             throw new Error(`Lỗi HTTP: ${response.status}`);
           }
 
           const submissions = await response.json();
+          console.log("Dữ liệu nhận được:", data); // Log 3
 
           if (submissions.length === 0) {
             adminContent.innerHTML = '<p>Chưa có dữ liệu đóng góp nào.</p>';
@@ -135,7 +142,7 @@
 
           adminContent.innerHTML = html;
         } catch (error) {
-          console.error('Lỗi khi tải dữ liệu:', error);
+          console.error("Lỗi khi tải dữ liệu:", error); // Log lỗi
           adminContent.innerHTML = `
             <div class="error">
               Lỗi khi tải dữ liệu: ${error.message}

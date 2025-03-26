@@ -20,8 +20,11 @@ exports.handler = async (event, context) => {
     const data = await response.json();
     return {
       statusCode: 200,
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*" // Cho phép mọi domain
+      },
+      body: JSON.stringify(data)
     };
   } catch (error) {
     return {
