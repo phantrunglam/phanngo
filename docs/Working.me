@@ -171,5 +171,36 @@ Có 2 phương án tùy theo nhu cầu:
 Phương án 1: Đồng bộ local với remote (giữ lại code trên GitHub)
 (Áp dụng nếu code trên GitHub là quan trọng và bạn muốn merge với code local)
 
+3. Triển Khai Lên Netlify
+Bước 1: Deploy từ GitHub
+Đăng nhập Netlify.
+
+Chọn New site from Git → GitHub → Chọn repository vừa tạo.
+
+Nhấn Deploy site.
+
+Bước 2: Cấu hình Netlify Identity
+Vào Site settings → Identity → Enable Identity.
+
+Cấu hình:
+
+Registration: Open (cho phép đăng ký tự do).
+
+External providers: Bật Google/GitHub nếu muốn.
+
+Bước 3: Kiểm tra Netlify Forms
+Form contribute sẽ tự động được nhận.
+
+Vào Netlify Dashboard → Forms để xem dữ liệu gửi lên.
+
+Bước 4: Cấu hình Disqus (Tùy chọn)
+Đăng ký Disqus, tạo site mới.
+
+Lấy shortname (ví dụ: myfamilytree).
+
+Thay YOUR-DISQUS-SHORTNAME trong file index.html bằng shortname của bạn.
+
+Commit và push lại code:
+
 
 
