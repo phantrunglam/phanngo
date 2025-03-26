@@ -1,36 +1,48 @@
-// Sử dụng require() thay vì import (vì Netlify Functions chạy trên Node.js)
 const fetch = require('node-fetch');
+const cloudinary = require('cloudinary').v2;
 
-exports.handler = async (event, context) => {
-  try {
-    const siteId = process.env.SITE_ID;
-    const token = process.env.NETLIFY_TOKEN;
+// Cấu hình Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-    const response = await fetch(
-      `https://api.netlify.com/api/v1/sites/${siteId}/submissions`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Lỗi API: ${response.statusText}`);
+exports.handler = async () => {
+  // 1. Lấy comments từ Netlify Forms
+  const formsRes = await fetch(`https://api.netlify.com/api/v1/sites/${process.env.SITE_ID}/submissions`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.NETLIFY_TOKEN}`
     }
+  });
+  const comments = await formsRes.json();
 
-    const data = await response.json();
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*", 
-        "Access-Control-Allow-Credentials": "true"
-      },
-      body: JSON.stringify(data)
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
-  }
+  // 2. Lấy ảnh từ Cloudinary
+  const imagesRes = await cloudinary.api.resources({
+    type: 'upload',
+    prefix: 'user_uploads/'
+  });
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      comments: comments.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        message: c.message,
+        photo_url: c.photo_url
+      })),
+      images: imagesRes.resources.map(img => ({
+        url: img.secure_url,
+        public_id: img.public_id,
+        related_comment: findCommentForImage(comments, img.secure_url)
+      }))
+    })
+  };
 };
+
+function findCommentForImage(comments, imageUrl) {
+  const comment = comments.find(c => c.photo_url === imageUrl);
+  return comment ? `${comment.name} (${comment.email})` : null;
+}

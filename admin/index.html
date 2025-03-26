@@ -2,155 +2,89 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Quản lý Gia Phả</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      line-height: 1.6;
-    }
-    .submission {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-    }
-    .submission h3 {
-      margin-top: 0;
-      color: #333;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #eee;
-      margin-top: 10px;
-    }
-    .error {
-      color: red;
-      font-weight: bold;
-    }
-    #logout-btn {
-      background: #ff4444;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      float: right;
-    }
-  </style>
+  <title>Admin Panel</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <link rel="stylesheet" href="/admin/style.css">
 </head>
 <body>
-  <!-- Nút đăng xuất -->
-  <button id="logout-btn">Đăng xuất</button>
-  <h1>Trang Quản Trị Gia Phả</h1>
-  <div id="admin-content">
-    <p>Đang kiểm tra quyền truy cập...</p>
+  <div data-netlify-identity-menu></div>
+  
+  <h1>Quản lý Đóng Góp</h1>
+  
+  <!-- Tab điều hướng -->
+  <div class="tabs">
+    <button class="tab active" data-tab="comments">Bình luận chờ duyệt</button>
+    <button class="tab" data-tab="images">Ảnh đính kèm</button>
   </div>
 
-  <!-- Netlify Identity Widget -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js?t=<%= new Date().getTime() %>"></script>
-  
+  <!-- Khu vực hiển thị -->
+  <div id="comments-panel" class="tab-content active">
+    <div class="grid-container" id="comments-list"></div>
+  </div>
+
+  <div id="images-panel" class="tab-content">
+    <div class="grid-container" id="images-list"></div>
+  </div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const adminContent = document.getElementById('admin-content');
-      const logoutBtn = document.getElementById('logout-btn');
-
-      // Xử lý đăng xuất
-      logoutBtn.addEventListener('click', () => {
-        netlifyIdentity.logout();
-        window.location.href = '/';
+    // Xác thực admin
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on("init", user => {
+        if (!user) netlifyIdentity.on("login", () => loadData());
       });
+    }
 
-      // Kiểm tra đăng nhập và quyền admin
-      if (window.netlifyIdentity) {
-        netlifyIdentity.on('init', (user) => {
-          console.log("Netlify Identity đã khởi tạo, user:", user); // Kiểm tra log
-          if (!user) {
-            // Chưa đăng nhập -> chuyển hướng về trang chủ
-            window.location.href = '/';
-          } else {
-            // Kiểm tra role admin
-            if (user.app_metadata?.roles?.includes('admin')) {
-              loadSubmissions();
-            } else {
-              adminContent.innerHTML = `
-                <div class="error">
-                  Bạn không có quyền truy cập trang này. Vui lòng liên hệ quản trị viên.
-                </div>
-              `;
-              netlifyIdentity.open(); // Mở popup đăng nhập
-            }
-          }
-        });
-      } else {
-        adminContent.innerHTML = `
-          <div class="error">
-            Lỗi tải hệ thống xác thực. Vui lòng thử lại.
-          </div>
-        `;
-        console.error("Netlify Identity Widget không tải được");
-        
-      }
+    // Load dữ liệu
+    async function loadData() {
+      const response = await fetch('/.netlify/functions/get-submissions');
+      const data = await response.json();
+      
+      renderComments(data.comments);
+      renderImages(data.images);
+    }
 
-      // Hàm tải danh sách submissions
-      async function loadSubmissions() {
-        try {
-          console.log("Đang gọi API..."); // Log 1
-          adminContent.innerHTML = '<p>Đang tải dữ liệu...</p>';
-          
-          const response = await fetch('/netlify/functions/get-submissions');
-          console.log("API response status:", response.status); // Log 2
-          
-          if (!response.ok) {
-            throw new Error(`Lỗi HTTP: ${response.status}`);
-          }
+    // Render comments
+    function renderComments(comments) {
+      const container = document.getElementById('comments-list');
+      container.innerHTML = comments.map(comment => `
+        <div class="card">
+          <p><strong>${comment.name}</strong> (${comment.email})</p>
+          <p>${comment.message}</p>
+          ${comment.photo_url ? `<img src="${comment.photo_url}" width="100">` : ''}
+          <button onclick="approveComment('${comment.id}')">Duyệt</button>
+          <button class="danger" onclick="deleteItem('${comment.id}')">Xóa</button>
+        </div>
+      `).join('');
+    }
 
-          const submissions = await response.json();
-          console.log("Dữ liệu nhận được:", data); // Log 3
+    // Render images
+    function renderImages(images) {
+      const container = document.getElementById('images-list');
+      container.innerHTML = images.map(img => `
+        <div class="card">
+          <img src="${img.url}" width="200">
+          <p>From: ${img.related_comment || 'Không có thông tin'}</p>
+          <button class="danger" onclick="deleteImage('${img.public_id}')">Xóa ảnh</button>
+        </div>
+      `).join('');
+    }
 
-          if (submissions.length === 0) {
-            adminContent.innerHTML = '<p>Chưa có dữ liệu đóng góp nào.</p>';
-            return;
-          }
+    // Các hàm xử lý
+    async function approveComment(id) {
+      await fetch('/.netlify/functions/approve-comment', {
+        method: 'POST',
+        body: JSON.stringify({ id })
+      });
+      loadData();
+    }
 
-          let html = '<h2>Danh sách Đóng Góp</h2>';
-          submissions.forEach((item, index) => {
-            html += `
-              <div class="submission">
-                <h3>Đóng góp #${index + 1}</h3>
-                <p><strong>Email:</strong> ${item['user-email'] || 'N/A'}</p>
-                <p><strong>Thời gian:</strong> ${new Date(item.created_at).toLocaleString()}</p>
-            `;
-            
-            if (item['photo-url']) {
-              html += `
-                <p><strong>Ảnh đính kèm:</strong></p>
-                <a href="${item['photo-url']}" target="_blank">
-                  <img src="${item['photo-url']}" alt="Ảnh đóng góp">
-                </a>
-              `;
-            } else {
-              html += '<p>Không có ảnh đính kèm</p>';
-            }
-            
-            html += `</div>`;
-          });
-
-          adminContent.innerHTML = html;
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu:", error); // Log lỗi
-          adminContent.innerHTML = `
-            <div class="error">
-              Lỗi khi tải dữ liệu: ${error.message}
-            </div>
-          `;
-        }
-      }
-    });
+    async function deleteImage(publicId) {
+      await fetch('/.netlify/functions/delete-image', {
+        method: 'POST',
+        body: JSON.stringify({ publicId })
+      });
+      loadData();
+    }
   </script>
 </body>
 </html>
