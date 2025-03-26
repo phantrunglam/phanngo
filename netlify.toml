@@ -1,0 +1,26 @@
+[build]
+  command = "npm run build"  # Hoặc "yarn build" nếu dùng yarn
+  publish = "dist"          # Thư mục chứa file build (đổi nếu cần)
+
+[functions]
+  directory = "netlify/functions"  # Đường dẫn đến thư mục Functions
+  node_bundler = "esbuild"         # Tối ưu tốc độ build function
+
+# Cấu hình Headers để chống cache và bảo mật
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cấu hình riêng cho Identity (nếu cần)
+[identity]
+  external = { url = "https://phanngo.netlify.app/.netlify/identity" }
+
+# Redirects cho trang admin (tuỳ chọn)
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
