@@ -6,59 +6,104 @@
   <!-- Cloudinary Widget JS -->
   <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
   <style>
-    /* CSS cho form (giữ nguyên từ code trước) */
+    /* CSS cho form */
     .hidden { display: none; }
     #preview { margin-top: 10px; }
     #preview img { max-width: 200px; }
+    .error-message { color: red; margin-top: 5px; }
+    .success-message { color: green; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <form name="contribute" netlify action="/thank-you.html">
+  <form name="contribute" netlify action="/thank-you.html" netlify-honeypot="bot-field">
     <!-- Trường chống spam -->
-  <p class="hidden">
-    <label>Không điền vào đây: <input name="bot-field"></label>
-  </p>
-    <!-- Các trường thông tin cũ -->
+    <p class="hidden">
+      <label>Không điền vào đây: <input name="bot-field"></label>
+    </p>
+    
+    <!-- Các trường thông tin -->
     <label>Họ tên: <input type="text" name="name" required></label>
     <label>Email: <input type="email" name="email" required></label>
     <label>Nội dung: <textarea name="message" required></textarea></label>
 
-    <!-- Phần upload ảnh mới -->
+    <!-- Phần upload ảnh -->
     <label>Ảnh đính kèm:</label>
     <button type="button" id="upload-button">Chọn ảnh</button>
     <div id="preview"></div>
+    <div id="upload-status" class="error-message"></div>
+    
+    <!-- Hidden fields để lưu URL ảnh và hiển thị trong email -->
     <input type="hidden" name="photo-url" id="photo-url">
+    <input type="hidden" name="photo-html" id="photo-html">
 
-
-    <!-- Nút gửi form -->
     <button type="submit">Gửi đóng góp</button>
   </form>
 
   <script>
     // Cấu hình Cloudinary Widget
     const widget = cloudinary.createUploadWidget({
-      cloudName: 'dmzxll8xc',  // Thay bằng cloud_name của bạn
-      uploadPreset: 'glk_upload', // Thay bằng upload preset
+      cloudName: 'dmzxll8xc',
+      uploadPreset: 'glk_upload', // Đã cấu hình là Unsigned
       sources: ['local', 'camera'],
       multiple: false,
       clientAllowedFormats: ['jpg', 'png', 'webp'],
-      maxFileSize: 5000000 // Giới hạn 5MB
+      maxFileSize: 5000000, // 5MB
+      cropping: false,
+      showAdvancedOptions: false,
+      styles: {
+        palette: {
+          window: "#FFFFFF",
+          sourceBg: "#F4F4F5",
+          windowBorder: "#90A0B3",
+          tabIcon: "#000000",
+          inactiveTabIcon: "#555A5F",
+          menuIcons: "#555A5F",
+          link: "#0433FF",
+          action: "#339933",
+          inProgress: "#0433FF",
+          complete: "#339933",
+          error: "#CC3333",
+          textDark: "#000000",
+          textLight: "#FFFFFF"
+        }
+      }
     }, (error, result) => {
-      if (result.event === 'success') {
-        document.getElementById('photo-url').value = result.info.secure_url;
-        // Hiển thị ảnh preview
+      const statusElement = document.getElementById('upload-status');
+      
+      if (error) {
+        statusElement.textContent = `Lỗi: ${error.message || 'Không thể tải ảnh lên'}`;
+        statusElement.className = 'error-message';
+        console.error('Upload error:', error);
+        return;
+      }
+
+      if (result && result.event === 'success') {
+        statusElement.textContent = 'Ảnh đã tải lên thành công!';
+        statusElement.className = 'success-message';
+        
+        // Hiển thị preview
         document.getElementById('preview').innerHTML = `
           <img src="${result.info.secure_url}" alt="Ảnh đã tải lên">
-          <p>Ảnh đã sẵn sàng!</p>
         `;
-        // Lưu URL ảnh vào hidden input
+        
+        // Lưu URL vào hidden fields
         document.getElementById('photo-url').value = result.info.secure_url;
+        document.getElementById('photo-html').value = 
+          `<img src="${result.info.secure_url}" width="200" alt="Ảnh đóng góp">`;
       }
     });
 
     // Mở widget khi click nút
     document.getElementById('upload-button').addEventListener('click', () => {
+      document.getElementById('upload-status').textContent = 'Đang chuẩn bị tải lên...';
       widget.open();
+    });
+
+    // Kiểm tra CORS
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('https://api.cloudinary.com/v1_1/dmzxll8xc/ping', { mode: 'cors' })
+        .then(() => console.log('CORS configured properly'))
+        .catch(err => console.warn('CORS check failed:', err));
     });
   </script>
 </body>
