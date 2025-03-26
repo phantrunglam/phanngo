@@ -3,10 +3,13 @@ const cloudinary = require('cloudinary').v2;
 
 // Cấu hình Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+
+
+
 
 exports.handler = async () => {
   // 1. Lấy comments từ Netlify Forms
@@ -41,6 +44,26 @@ exports.handler = async () => {
     })
   };
 };
+
+function findCommentForImage(comments, imageUrl) {
+  const comment = comments.find(c => c.photo_url === imageUrl);
+  return comment ? `${comment.name} (${comment.email})` : null;
+}
+
+
+
+async function getCloudinaryImages(comments) {
+  const result = await cloudinary.api.resources({
+    type: 'upload',
+    prefix: 'user_uploads/' // Thay bằng prefix bạn dùng
+  });
+  
+  return result.resources.map(img => ({
+    url: img.secure_url,
+    public_id: img.public_id,
+    related_comment: findCommentForImage(comments, img.secure_url)
+  }));
+}
 
 function findCommentForImage(comments, imageUrl) {
   const comment = comments.find(c => c.photo_url === imageUrl);
