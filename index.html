@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gia Phả Dòng Tộc</title>
+  <!-- Netlify Identity -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Disqus -->
+  <script id="dsq-count-scr" src="//YOUR-DISQUS-SHORTNAME.disqus.com/count.js" async></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Gia Phả Dòng Tộc</h1>
+    <!-- Nút đăng nhập Netlify Identity -->
+    <div data-netlify-identity-menu></div>
+  </header>
+
+  <main>
+    <!-- Form đóng góp thông tin (Netlify Forms) -->
+    <section class="contribute-form">
+      <h2>Đóng Góp Thông Tin Gia Đình</h2>
+      <form name="contribute" netlify>
+        <label for="name">Họ và tên:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="message">Thông tin đóng góp:</label>
+        <textarea id="message" name="message" required></textarea>
+        
+        <button type="submit">Gửi</button>
+      </form>
+    </section>
+
+    <!-- Khu vực bình luận (Disqus) -->
+    <section class="comments">
+      <h2>Bình Luận</h2>
+      <div id="disqus_thread"></div>
+      <script>
+        (function() {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://YOUR-DISQUS-SHORTNAME.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    </section>
+  </main>
+
+  <!-- Script xử lý Netlify Identity -->
+  <script>
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on("init", user => {
+        if (!user) netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      });
+    }
+  </script>
+</body>
+</html>
