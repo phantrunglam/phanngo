@@ -1,7 +1,7 @@
-// netlify/functions/get-submissions.js
+// Sử dụng require() thay vì import (vì Netlify Functions chạy trên Node.js)
 const fetch = require('node-fetch');
 
-exports.handler = async () => {
+exports.handler = async (event, context) => {
   try {
     const siteId = process.env.SITE_ID;
     const token = process.env.NETLIFY_TOKEN;
@@ -13,7 +13,9 @@ exports.handler = async () => {
       }
     );
 
-    if (!response.ok) throw new Error(`Lỗi API: ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(`Lỗi API: ${response.statusText}`);
+    }
 
     const data = await response.json();
     return {
