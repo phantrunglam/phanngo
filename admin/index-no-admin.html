@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Quản lý Gia Phả</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .submission {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #eee;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trang Quản Trị Gia Phả</h1>
+  <div id="submissions">
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Bỏ qua kiểm tra quyền, load dữ liệu ngay
+      loadSubmissions();
+    });
+
+    async function loadSubmissions() {
+      try {
+        const response = await fetch('/.netlify/functions/get-submissions');
+        
+        if (!response.ok) {
+          throw new Error(`Lỗi HTTP: ${response.status}`);
+        }
+
+        const submissions = await response.json();
+        const container = document.getElementById('submissions');
+
+        if (submissions.length === 0) {
+          container.innerHTML = '<p>Chưa có dữ liệu đóng góp nào.</p>';
+          return;
+        }
+
+        let html = '';
+        submissions.forEach((item, index) => {
+          html += `
+            <div class="submission">
+              <h3>Đóng góp #${index + 1}</h3>
+              <p><strong>Email:</strong> ${item['user-email'] || 'N/A'}</p>
+              ${item['photo-url'] ? `
+                <p><strong>Ảnh đính kèm:</strong></p>
+                <a href="${item['photo-url']}" target="_blank">
+                  <img src="${item['photo-url']}" alt="Ảnh đóng góp">
+                </a>
+              ` : '<p>Không có ảnh đính kèm</p>'}
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu:', error);
+        document.getElementById('submissions').innerHTML = `
+          <p style="color: red;">Lỗi khi tải dữ liệu: ${error.message}</p>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
