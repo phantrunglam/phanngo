@@ -87,12 +87,17 @@
       container.innerHTML = images.map(img => `
         <div class="card">
           <img src="${img.url}" width="200">
-          <p>Tags: ${img.tags?.join(', ') || 'Không có tag'}</p>
-          <p>From: ${img.related_comment || 'Không có thông tin'}</p>
-          <button class="danger" onclick="deleteImage('${img.public_id}')">Xóa ảnh</button>
+          <p>Public ID: ${img.public_id}</p>
+          ${img.related_comment 
+            ? `<p>From: ${img.related_comment}</p>` 
+            : `<p class="warning">Chưa liên kết với comment</p>`
+          }
+          <button onclick="deleteImage('${img.public_id}')">Xóa ảnh</button>
         </div>
       `).join('');
     }
+
+    
 
     // Các hàm xử lý
     async function approveComment(id) {
@@ -117,5 +122,25 @@
     }
 
   </script>
+
+<div id="debug-info" style="margin: 20px; padding: 10px; background: #f5f5f5;">
+  <h3>Debug Info</h3>
+  <pre id="debug-data"></pre>
+</div>
+
+<script>
+// Trong hàm loadData()
+async function loadData() {
+  try {
+    const response = await fetch('/.netlify/functions/get-submissions');
+    const data = await response.json();
+    document.getElementById('debug-data').textContent = JSON.stringify(data, null, 2);
+    renderComments(data.comments);
+    renderImages(data.images);
+  } catch (error) {
+    console.error("Load error:", error);
+  }
+}
+</script>
 </body>
 </html>

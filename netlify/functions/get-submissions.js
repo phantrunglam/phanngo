@@ -9,9 +9,15 @@ cloudinary.config({
   });
 
 // Shared utility function
+
 const findCommentForImage = (comments, imageUrl) => {
-  const comment = comments.find(c => c.photo_url === imageUrl);
-  return comment ? `${comment.name} (${comment.email})` : null;
+  // Chuẩn hóa URL để so sánh (bỏ query params nếu có)
+  const normalizeUrl = url => url.split('?')[0];
+  const targetUrl = normalizeUrl(imageUrl);
+  
+  return comments.find(c => 
+    c.photo_url && normalizeUrl(c.photo_url) === targetUrl
+  );
 };
 
 exports.handler = async () => {
@@ -54,6 +60,12 @@ exports.handler = async () => {
     })
   };
 };
+
+function findCommentForImage(comments, imageUrl) {
+  const comment = comments.find(c => c.photo_url === imageUrl);
+  return comment ? `${comment.name} (${comment.email})` : null;
+}
+
 
 
 async function getCloudinaryImages(comments) {
