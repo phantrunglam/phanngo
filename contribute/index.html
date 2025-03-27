@@ -236,6 +236,15 @@
       document.getElementById('photo-html').value = html;
     }
 
+  // Xử lý sự kiện khi DOM đã tải xong
+  document.addEventListener('DOMContentLoaded', function() {
+        // Xóa input file không sử dụng (nếu tồn tại)
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+          fileInput.remove();
+        }
+
+
     // Xử lý sự kiện click nút upload
     document.getElementById('upload-button').addEventListener('click', async () => {
       const statusElement = document.getElementById('upload-status');
@@ -253,9 +262,8 @@
         statusElement.className = 'status-message error';
       }
     });
-
-    // Xóa input file không sử dụng
-    document.getElementById('file-input')?.remove();
+  });
+    
   </script>
 </body>
 </html>
