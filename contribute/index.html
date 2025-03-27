@@ -89,100 +89,162 @@
     <label>Email: <input type="email" name="email" required></label>
     <label>Nội dung: <textarea name="message" required></textarea></label>
 
-    <!-- Phần upload ảnh -->
-    <label>Ảnh đính kèm:</label>
-    <button type="button" id="upload-button">Chọn ảnh</button>
-    <div id="preview"></div>
-    <div id="upload-status" class="error-message"></div>
+    <div class="form-group">
+      <label>Ảnh đính kèm:</label>
+      <button type="button" id="upload-button" class="upload-btn">Chọn ảnh (tối đa 5 ảnh)</button>
+      <small class="info-message">Hỗ trợ định dạng: JPG, JPEG, PNG, WEBP, HEIC (tối đa 5MB/ảnh)</small>
+      <div id="preview" class="preview-container"></div>
+      <div id="upload-status" class="status-message"></div>
+      <input type="hidden" name="photo-url-optimized" id="photo-url-optimized">
+    </div>
     
-    <!-- Hidden fields để lưu URL ảnh và hiển thị trong email -->
-    <input type="hidden" name="photo-url" id="photo-url">
-    <input type="hidden" name="photo-html" id="photo-html">
-
-    <button type="submit">Gửi đóng góp</button>
-  </form>
-
-  <script>
-    // Cấu hình Cloudinary Upload Widget
-    const widget = cloudinary.createUploadWidget({
-      cloudName: 'dmzxll8xc',
-      uploadPreset: 'glk_upload', // Đã cấu hình là Unsigned
-      sources: ['local', 'camera'],
-      tags: ['contribute'], // 👈 Thêm tags cố định cho việc người dùng gửi ảnh lên
-      context: { alt: 'User uploaded image' }, // Metadata tùy chọn
-      multiple: false,
-      clientAllowedFormats: ['jpg', 'png', 'webp'],
-      maxFileSize: 5000000, // 5MB
-      cropping: false,
-      showAdvancedOptions: false,
-      styles: {
-        palette: {
-          window: "#FFFFFF",
-          sourceBg: "#F4F4F5",
-          windowBorder: "#90A0B3",
-          tabIcon: "#000000",
-          inactiveTabIcon: "#555A5F",
-          menuIcons: "#555A5F",
-          link: "#0433FF",
-          action: "#339933",
-          inProgress: "#0433FF",
-          complete: "#339933",
-          error: "#CC3333",
-          textDark: "#000000",
-          textLight: "#FFFFFF"
+    <style>
+      .upload-btn {
+        background: #4285F4;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+      }
+      
+      .upload-btn:hover {
+        background: #3367D6;
+      }
+      
+      .preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      
+      .preview-container img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .status-message {
+        margin-top: 10px;
+        font-size: 13px;
+      }
+      
+      .info-message {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 12px;
+      }
+    </style>
+    
+    <script>
+      // Xóa input file không sử dụng
+      document.getElementById('file-input').remove();
+    
+      // Cấu hình Cloudinary Widget với hỗ trợ nhiều định dạng
+      const widget = cloudinary.createUploadWidget({
+        cloudName: 'dmzxll8xc',
+        uploadPreset: 'glk_upload',
+        sources: ['local', 'camera'],
+        tags: ['contribute'],
+        multiple: true,
+        maxFiles: 5,
+        maxFileSize: 5000000, // 5MB
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'],
+        showAdvancedOptions: false,
+        cropping: false,
+        styles: {
+          palette: {
+            window: "#FFFFFF",
+            sourceBg: "#F4F4F5",
+            windowBorder: "#90A0B3",
+            tabIcon: "#000000",
+            inactiveTabIcon: "#555A5F",
+            menuIcons: "#555A5F",
+            link: "#0433FF",
+            action: "#339933",
+            inProgress: "#0433FF",
+            complete: "#339933",
+            error: "#CC3333",
+            textDark: "#000000",
+            textLight: "#FFFFFF"
+          }
         }
-      }
-    }, (error, result) => {
-      const statusElement = document.getElementById('upload-status');
-
-      if (error) {
-        statusElement.textContent = `Lỗi: ${error.message || 'Không thể tải ảnh lên'}`;
-        statusElement.className = 'error-message';
-        console.error('Upload error:', error);
-        return;
-      }
-
-      if (result && result.event === 'success') {
-        statusElement.textContent = 'Ảnh đã tải lên thành công!';
-        statusElement.className = 'success-message';
-        document.getElementById('photo-url').value = result.info.secure_url;
-        console.log("Ảnh đã upload với tags:", result.info.tags); // Kiểm tra tags
+      }, (error, result) => {
+        const statusElement = document.getElementById('upload-status');
+        const previewElement = document.getElementById('preview');
         
-        // Hiển thị preview
-        document.getElementById('preview').innerHTML = `
-          <img src="${result.info.secure_url}" alt="Ảnh đã tải lên">
-        `;
+        if (error) {
+          statusElement.textContent = `Lỗi: ${error.message || 'Không thể tải ảnh lên'}`;
+          statusElement.className = 'status-message error';
+          return;
+        }
+
+     /*
+     // Tạo URL tối ưu với định dạng WebP và chất lượng tự động
+  const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
+  
+  // Thêm ảnh vào preview với URL đã tối ưu
+  const img = document.createElement('img');
+  img.src = optimizedUrl;
+  previewElement.appendChild(img);
+  
+  // Cập nhật trạng thái
+  const uploadedCount = document.querySelectorAll('#preview img').length;
+  statusElement.textContent = `Đã tải lên ${uploadedCount}/5 ảnh`;
+  statusElement.className = 'status-message success';
+  
+  // Cập nhật hidden fields với URL gốc (nếu cần) và URL tối ưu
+  updatePhotoFields(optimizedUrl, result.info.secure_url);
+     */   
+    
+        if (result && result.event === 'success') {
+          const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
+  
+          // Thêm ảnh vào preview với URL đã tối ưu
+          const img = document.createElement('img');
+          img.src = optimizedUrl;
+          previewElement.appendChild(img);
+          
+          // Cập nhật trạng thái
+          const uploadedCount = document.querySelectorAll('#preview img').length;
+          statusElement.textContent = `Đã tải lên ${uploadedCount}/5 ảnh`;
+          statusElement.className = 'status-message success';
+          
+          // Cập nhật hidden fields
+          updatePhotoFields();
+        }
         
-        // Lưu URL vào hidden fields
-        document.getElementById('photo-url').value = result.info.secure_url;
-        document.getElementById('photo-html').value = 
-          `<img src="${result.info.secure_url}" width="200" alt="Ảnh đóng góp">`;
-      }
-    });
-
-    // Mở widget khi click nút
-    document.getElementById('upload-button').addEventListener('click', () => {
-      document.getElementById('upload-status').textContent = 'Đang chuẩn bị tải lên...';
-      widget.open();
-    });
-
-        document.getElementById('upload-button').addEventListener('click', () => {
-      // Thêm trạng thái "Đang chuẩn bị"
-      const statusElement = document.getElementById('upload-status');
-      statusElement.textContent = 'Đang mở trình tải lên...';
-      statusElement.className = 'info-message';
-      
-      // Mở widget
-      widget.open();
-      
-      // Kiểm tra Cloudinary có sẵn sàng không
-      if (typeof cloudinary === 'undefined') {
-        statusElement.textContent = 'Lỗi: Trình tải lên chưa sẵn sàng';
-        statusElement.className = 'error-message';
-        return;
-      }
-    });
-
-  </script>
+        if (result && result.event === 'close') {
+          const uploaded = widget.getUploadResults();
+          if (uploaded.length > 0) {
+            statusElement.textContent = `Hoàn thành: Đã tải lên ${uploaded.length}/5 ảnh`;
+            statusElement.className = 'status-message success';
+          }
+        }
+      });
+    
+      // Hàm cập nhật các trường ẩn
+      function updatePhotoFields(optimizedUrl, originalUrl) {
+        const uploaded = widget.getUploadResults();
+        const originalUrls = uploaded.map(file => file.info.secure_url);
+        const optimizedUrls = uploaded.map(file => 
+          `${file.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.info.public_id}`
+      );
+    
+      // Xử lý sự kiện click nút upload
+      document.getElementById('upload-button').addEventListener('click', () => {
+        const statusElement = document.getElementById('upload-status');
+        statusElement.textContent = 'Đang mở trình tải lên...';
+        statusElement.className = 'status-message info';
+        
+        widget.open();
+      });
+    </script>
 </body>
 </html>
