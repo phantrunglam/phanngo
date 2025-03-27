@@ -184,24 +184,6 @@
           statusElement.className = 'status-message error';
           return;
         }
-
-     /*
-     // Tạo URL tối ưu với định dạng WebP và chất lượng tự động
-  const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
-  
-  // Thêm ảnh vào preview với URL đã tối ưu
-  const img = document.createElement('img');
-  img.src = optimizedUrl;
-  previewElement.appendChild(img);
-  
-  // Cập nhật trạng thái
-  const uploadedCount = document.querySelectorAll('#preview img').length;
-  statusElement.textContent = `Đã tải lên ${uploadedCount}/5 ảnh`;
-  statusElement.className = 'status-message success';
-  
-  // Cập nhật hidden fields với URL gốc (nếu cần) và URL tối ưu
-  updatePhotoFields(optimizedUrl, result.info.secure_url);
-     */   
     
         if (result && result.event === 'success') {
           
