@@ -1,0 +1,58 @@
+  backend:
+  name: git-gateway
+  branch: main  # Nhánh Git chính của bạn
+  commit_messages:
+    create: "Tạo mới {{collection}} '{{slug}}'"
+    update: "Cập nhật {{collection}} '{{slug}}'"
+    delete: "Xóa {{collection}} '{{slug}}'"
+    uploadMedia: "Upload ảnh [skip ci]"
+    deleteMedia: "Xóa ảnh [skip ci]"
+
+# Cấu hình xuất bản
+publish_mode: editorial_workflow  # Bật chế độ draft/review/publish
+show_preview_links: true
+
+# Quản lý media với Cloudinary
+media_folder: "public/uploads"  # Thư mục lưu trữ local fallback
+public_folder: "/uploads"
+media_library:
+  name: cloudinary
+  config:
+    cloud_name: ${CLOUDINARY_CLOUD_NAME}
+    api_key: ${CLOUDINARY_API_KEY}  # Thay bằng biến môi trường
+    api_secret: ${CLOUDINARY_API_SECRET}  # Nếu cần upload từ CMS
+    default_transformations:
+      - { quality: "auto", fetch_format: "auto" }
+    backend:
+  name: git-gateway
+  branch: main
+
+# Cấu hình collections
+collections:
+  # Collection cho bài viết
+  - name: "posts"
+    label: "Bài viết"
+    folder: "content/posts"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { name: "title", label: "Tiêu đề", widget: "string" }
+      - { name: "date", label: "Ngày", widget: "datetime" }
+      - { name: "featured_image", label: "Ảnh bìa", widget: "image", required: false }
+      - { name: "body", label: "Nội dung", widget: "markdown" }
+
+  # Collection cho đóng góp gia phả
+  - name: "contributions"
+    label: "Đóng góp"
+    folder: "content/contributions"
+    identifier_field: "id"
+    fields:
+      - { name: "name", label: "Họ tên", widget: "string" }
+      - { name: "email", label: "Email", widget: "string" }
+      - { name: "message", label: "Nội dung", widget: "text" }
+      - { name: "photo_url", label: "Ảnh đính kèm", widget: "image", required: false }
+
+# Cấu hình editor
+editor:
+  preview: false  # Tắt preview mặc định
+  frame_height: "600px"
