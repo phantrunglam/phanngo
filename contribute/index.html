@@ -204,8 +204,8 @@
      */   
     
         if (result && result.event === 'success') {
+          
           const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
-  
           // Thêm ảnh vào preview với URL đã tối ưu
           const img = document.createElement('img');
           img.src = optimizedUrl;
@@ -229,22 +229,24 @@
         }
       });
     
-      // Hàm cập nhật các trường ẩn
-      function updatePhotoFields(optimizedUrl, originalUrl) {
-        const uploaded = widget.getUploadResults();
-        const originalUrls = uploaded.map(file => file.info.secure_url);
-        const optimizedUrls = uploaded.map(file => 
-          `${file.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.info.public_id}`
+  function updatePhotoFields() {
+      const uploaded = widget.getUploadResults();
+      const originalUrls = uploaded.map(file => file.info.secure_url);
+      const optimizedUrls = uploaded.map(file => 
+        `${file.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.info.public_id}`
       );
-    
-      // Xử lý sự kiện click nút upload
-      document.getElementById('upload-button').addEventListener('click', () => {
-        const statusElement = document.getElementById('upload-status');
-        statusElement.textContent = 'Đang mở trình tải lên...';
-        statusElement.className = 'status-message info';
-        
-        widget.open();
-      });
+      
+      // Lưu cả URL gốc và URL tối ưu
+      document.getElementById('photo-url').value = originalUrls.join(',');
+      document.getElementById('photo-url-optimized').value = optimizedUrls.join(',');
+      
+      // Tạo HTML preview với ảnh tối ưu
+      const html = optimizedUrls.map(url => 
+        `<img src="${url}" width="200" alt="Ảnh đóng góp">`
+      ).join('');
+      document.getElementById('photo-html').value = html;
+      };
+
     </script>
 </body>
 </html>
