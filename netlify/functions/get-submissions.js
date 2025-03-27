@@ -61,10 +61,6 @@ exports.handler = async () => {
   };
 };
 
-function findCommentForImage(comments, imageUrl) {
-  const comment = comments.find(c => c.photo_url === imageUrl);
-  return comment ? `${comment.name} (${comment.email})` : null;
-}
 
 
 
