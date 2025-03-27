@@ -8,8 +8,11 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
 
-
-
+// Shared utility function
+const findCommentForImage = (comments, imageUrl) => {
+  const comment = comments.find(c => c.photo_url === imageUrl);
+  return comment ? `${comment.name} (${comment.email})` : null;
+};
 
 exports.handler = async () => {
   // 1. Lấy comments từ Netlify Forms
@@ -21,9 +24,15 @@ exports.handler = async () => {
   const comments = await formsRes.json();
 
   // 2. Lấy ảnh từ Cloudinary
-  const imagesRes = await cloudinary.api.resources({
-    type: 'upload',
-    prefix: 'user_uploads/'
+  // const imagesRes = await cloudinary.api.resources({
+  //  type: 'upload',
+  //  prefix: 'user_uploads/'
+  // });
+
+  // Lấy ảnh theo tag
+  const imagesRes = await cloudinary.api.resources_by_tag('contribute', {
+    resource_type: 'image',
+    max_results: 100
   });
 
   return {
@@ -39,24 +48,20 @@ exports.handler = async () => {
       images: imagesRes.resources.map(img => ({
         url: img.secure_url,
         public_id: img.public_id,
+        tags: img.tags, // 👈 Có thể dùng để filter thêm
         related_comment: findCommentForImage(comments, img.secure_url)
       }))
     })
   };
 };
 
-function findCommentForImage(comments, imageUrl) {
-  const comment = comments.find(c => c.photo_url === imageUrl);
-  return comment ? `${comment.name} (${comment.email})` : null;
-}
-
-
 
 async function getCloudinaryImages(comments) {
-  const result = await cloudinary.api.resources({
-    type: 'upload',
-    prefix: 'user_uploads/' // Thay bằng prefix bạn dùng
+  const result = await cloudinary.api.resources_by_tag('contribute', {
+    resource_type: 'image',
+    max_results: 100
   });
+  
   
   return result.resources.map(img => ({
     url: img.secure_url,
@@ -65,7 +70,3 @@ async function getCloudinaryImages(comments) {
   }));
 }
 
-function findCommentForImage(comments, imageUrl) {
-  const comment = comments.find(c => c.photo_url === imageUrl);
-  return comment ? `${comment.name} (${comment.email})` : null;
-}

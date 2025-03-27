@@ -103,11 +103,13 @@
   </form>
 
   <script>
-    // Cấu hình Cloudinary Widget
+    // Cấu hình Cloudinary Upload Widget
     const widget = cloudinary.createUploadWidget({
       cloudName: 'dmzxll8xc',
       uploadPreset: 'glk_upload', // Đã cấu hình là Unsigned
       sources: ['local', 'camera'],
+      tags: ['contribute'], // 👈 Thêm tags cố định cho việc người dùng gửi ảnh lên
+      context: { alt: 'User uploaded image' }, // Metadata tùy chọn
       multiple: false,
       clientAllowedFormats: ['jpg', 'png', 'webp'],
       maxFileSize: 5000000, // 5MB
@@ -132,7 +134,7 @@
       }
     }, (error, result) => {
       const statusElement = document.getElementById('upload-status');
-      
+
       if (error) {
         statusElement.textContent = `Lỗi: ${error.message || 'Không thể tải ảnh lên'}`;
         statusElement.className = 'error-message';
@@ -143,6 +145,8 @@
       if (result && result.event === 'success') {
         statusElement.textContent = 'Ảnh đã tải lên thành công!';
         statusElement.className = 'success-message';
+        document.getElementById('photo-url').value = result.info.secure_url;
+        console.log("Ảnh đã upload với tags:", result.info.tags); // Kiểm tra tags
         
         // Hiển thị preview
         document.getElementById('preview').innerHTML = `

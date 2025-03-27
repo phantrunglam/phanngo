@@ -59,6 +59,8 @@
       renderImages(data.images);
     }
 
+    
+
     // Render comments
     function renderComments(comments) {
        
@@ -79,13 +81,13 @@
     }
 
 
-
     // Render images
     function renderImages(images) {
       const container = document.getElementById('images-list');
       container.innerHTML = images.map(img => `
         <div class="card">
           <img src="${img.url}" width="200">
+          <p>Tags: ${img.tags?.join(', ') || 'Không có tag'}</p>
           <p>From: ${img.related_comment || 'Không có thông tin'}</p>
           <button class="danger" onclick="deleteImage('${img.public_id}')">Xóa ảnh</button>
         </div>
@@ -102,12 +104,18 @@
     }
 
     async function deleteImage(publicId) {
+      // Xóa tag thay vì xóa ảnh (hoặc xóa luôn ảnh nếu cần)
       await fetch('/.netlify/functions/delete-image', {
         method: 'POST',
-        body: JSON.stringify({ publicId })
+        body: JSON.stringify({ 
+          publicId,
+          action: 'remove_tag', // Hoặc 'delete'
+          tag: 'contribute'
+        })
       });
-      loadData();
+      loadData(); // Tải lại danh sách
     }
+
   </script>
 </body>
 </html>
