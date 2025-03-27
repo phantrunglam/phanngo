@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+  <div data-netlify-identity-menu></div>
+  
+  <h1>Quản lý Đóng Góp</h1>
+  
+  <!-- Tab điều hướng -->
+  <div class="tabs">
+    <button class="tab active" data-tab="comments">Bình luận chờ duyệt</button>
+    <button class="tab" data-tab="images">Ảnh đính kèm</button>
+  </div>
+
+  <!-- Khu vực hiển thị -->
+  <div id="comments-panel" class="tab-content active">
+    <div class="grid-container" id="comments-list"></div>
+  </div>
+
+  <div id="images-panel" class="tab-content">
+    <div class="grid-container" id="images-list"></div>
+  </div>
+
+  <script>
+    // Xác thực admin
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on("init", user => {
+        if (!user) netlifyIdentity.on("login", () => loadData());
+      });
+    }
+
+    // Load dữ liệu
+    async function loadData() {
+      const response = await fetch('/.netlify/functions/get-submissions');
+      const data = await response.json();
+      
+      renderComments(data.comments);
+      renderImages(data.images);
+    }
+
+    // Render comments
+    function renderComments(comments) {
+      const container = document.getElementById('comments-list');
+      container.innerHTML = comments.map(comment => `
+        <div class="card">
+          <p><strong>${comment.name}</strong> (${comment.email})</p>
+          <p>${comment.message}</p>
+          ${comment.photo_url ? `<img src="${comment.photo_url}" width="100">` : ''}
+          <button onclick="approveComment('${comment.id}')">Duyệt</button>
+          <button class="danger" onclick="deleteItem('${comment.id}')">Xóa</button>
+        </div>
+      `).join('');
+    }
+
+    // Render images
+    function renderImages(images) {
+      const container = document.getElementById('images-list');
+      container.innerHTML = images.map(img => `
+        <div class="card">
+          <img src="${img.url}" width="200">
+          <p>From: ${img.related_comment || 'Không có thông tin'}</p>
+          <button class="danger" onclick="deleteImage('${img.public_id}')">Xóa ảnh</button>
+        </div>
+      `).join('');
+    }
+
+    // Các hàm xử lý
+    async function approveComment(id) {
+      await fetch('/.netlify/functions/approve-comment', {
+        method: 'POST',
+        body: JSON.stringify({ id })
+      });
+      loadData();
+    }
+
+    async function deleteImage(publicId) {
+      await fetch('/.netlify/functions/delete-image', {
+        method: 'POST',
+        body: JSON.stringify({ publicId })
+      });
+      loadData();
+    }
+  </script>
+</body>
+</html>

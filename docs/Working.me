@@ -171,5 +171,78 @@ Có 2 phương án tùy theo nhu cầu:
 Phương án 1: Đồng bộ local với remote (giữ lại code trên GitHub)
 (Áp dụng nếu code trên GitHub là quan trọng và bạn muốn merge với code local)
 
+3. Triển Khai Lên Netlify
+Bước 1: Deploy từ GitHub
+Đăng nhập Netlify.
+
+Chọn New site from Git → GitHub → Chọn repository vừa tạo.
+
+Nhấn Deploy site.
+
+Bước 2: Cấu hình Netlify Identity
+Vào Site settings → Identity → Enable Identity.
+
+Cấu hình:
+
+Registration: Open (cho phép đăng ký tự do).
+
+External providers: Bật Google/GitHub nếu muốn.
+
+Bước 3: Kiểm tra Netlify Forms
+Form contribute sẽ tự động được nhận.
+
+Vào Netlify Dashboard → Forms để xem dữ liệu gửi lên.
+
+Bước 4: Cấu hình Disqus (Tùy chọn)
+Đăng ký Disqus, tạo site mới.
+
+Lấy shortname (ví dụ: myfamilytree).
+
+Thay YOUR-DISQUS-SHORTNAME trong file index.html bằng shortname của bạn.
+
+Commit và push lại code:
 
 
+
+
+
+
+
+Lỗi Admin UI
+
+https://app.netlify.com/sites/phanngo/identity
+
+
+dùng terminal commandline
+
+curl -X POST "https://api.netlify.com/api/v1/sites/phanngo/identity" \
+  -H "Authorization: Bearer [api-token]" \
+  -H "Content-Type: application/json" \
+  -d '{"admin_url": "/admin"}'
+
+
+Netlify SIDE_ID
+# MY_SITE_ID
+
+| Deploy context                  | Value                                |
+| ------------------------------- | ------------------------------------ |
+| Production                      | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Deploy Preview                  | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Branch deploy                   | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+| Local development (Netlify CLI) | 8dbdf322-cda0-4f0e-909f-a3e4863452b7 |
+
+Netlify PAT
+name: Giapha-Site-Token
+nfp_FjfGWkGHrdoHek5qwF3Z1LYqXZJMwo6Ce829
+
+
+curl -H "Authorization: Bearer nfp_FjfGWkGHrdoHek5qwF3Z1LYqXZJMwo6Ce829" \
+  "https://api.netlify.com/api/v1/sites/{8dbdf322-cda0-4f0e-909f-a3e4863452b7}/submissions"
+
+
+  https://phanngo.netlify.app/.netlify/functions/get-submissions
+
+
+  https://phanngo.netlify.app/.netlify/functions/test-cloudinary
+    https://phanngo.netlify.app/.netlify/functions/test-netlify.js
+    
