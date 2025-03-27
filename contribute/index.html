@@ -140,8 +140,9 @@
   </form>
 
   <script>
-    // Khai báo widget ở phạm vi global
+    // Khai báo widget và mảng lưu kết quả upload
     let widget;
+    let uploadedFiles = [];
 
     // Hàm khởi tạo widget
     function initializeCloudinaryWidget() {
@@ -192,23 +193,31 @@
         }
 
         if (result && result.event === 'success') {
+          // Lưu thông tin file vào mảng
+          uploadedFiles.push({
+            secure_url: result.info.secure_url,
+            public_id: result.info.public_id
+          });
+          
+          // Tạo URL tối ưu
           const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
           
+          // Thêm ảnh vào preview
           const img = document.createElement('img');
           img.src = optimizedUrl;
           previewElement.appendChild(img);
           
-          const uploadedCount = document.querySelectorAll('#preview img').length;
-          statusElement.textContent = `Đã tải lên ${uploadedCount}/5 ảnh`;
+          // Cập nhật trạng thái
+          statusElement.textContent = `Đã tải lên ${uploadedFiles.length}/5 ảnh`;
           statusElement.className = 'status-message success';
           
+          // Cập nhật hidden fields
           updatePhotoFields();
         }
         
         if (result && result.event === 'close') {
-          const uploaded = widget.getUploadResults();
-          if (uploaded.length > 0) {
-            statusElement.textContent = `Hoàn thành: Đã tải lên ${uploaded.length}/5 ảnh`;
+          if (uploadedFiles.length > 0) {
+            statusElement.textContent = `Hoàn thành: Đã tải lên ${uploadedFiles.length}/5 ảnh`;
             statusElement.className = 'status-message success';
           }
         }
@@ -221,10 +230,9 @@
 
     // Hàm cập nhật các trường ẩn
     function updatePhotoFields() {
-      const uploaded = widget.getUploadResults();
-      const originalUrls = uploaded.map(file => file.info.secure_url);
-      const optimizedUrls = uploaded.map(file => 
-        `${file.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.info.public_id}`
+      const originalUrls = uploadedFiles.map(file => file.secure_url);
+      const optimizedUrls = uploadedFiles.map(file => 
+        `${file.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.public_id}`
       );
       
       document.getElementById('photo-url').value = originalUrls.join(',');
@@ -236,34 +244,30 @@
       document.getElementById('photo-html').value = html;
     }
 
-  // Xử lý sự kiện khi DOM đã tải xong
-  document.addEventListener('DOMContentLoaded', function() {
-        // Xóa input file không sử dụng (nếu tồn tại)
-        const fileInput = document.getElementById('file-input');
-        if (fileInput) {
-          fileInput.remove();
-        }
+    // Xử lý khi DOM đã tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+      // Xóa input file không sử dụng (nếu có)
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) fileInput.remove();
 
-
-    // Xử lý sự kiện click nút upload
-    document.getElementById('upload-button').addEventListener('click', async () => {
-      const statusElement = document.getElementById('upload-status');
-      statusElement.textContent = 'Đang mở trình tải lên...';
-      statusElement.className = 'status-message info';
-      
-      try {
-        if (!widget) {
-          await initializeCloudinaryWidget();
+      // Gắn sự kiện cho nút upload
+      document.getElementById('upload-button').addEventListener('click', async () => {
+        const statusElement = document.getElementById('upload-status');
+        statusElement.textContent = 'Đang mở trình tải lên...';
+        statusElement.className = 'status-message info';
+        
+        try {
+          if (!widget) {
+            await initializeCloudinaryWidget();
+          }
+          widget.open();
+        } catch (e) {
+          console.error('Widget initialization failed:', e);
+          statusElement.textContent = 'Lỗi: Không thể mở trình tải lên';
+          statusElement.className = 'status-message error';
         }
-        widget.open();
-      } catch (e) {
-        console.error('Widget initialization failed:', e);
-        statusElement.textContent = 'Lỗi: Không thể mở trình tải lên';
-        statusElement.className = 'status-message error';
-      }
+      });
     });
-  });
-    
-  </script>
+</script>
 </body>
 </html>
