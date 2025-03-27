@@ -5,77 +5,104 @@
   <title>Đóng Góp Thông Tin Gia Phả</title>
   <!-- Cloudinary Widget JS -->
   <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-
-<style>
-  .hidden { display: none; }
+  <style>
+    .hidden { display: none; }
     #preview { margin-top: 10px; }
     #preview img { max-width: 200px; }
     .error-message { color: red; margin-top: 5px; }
     .success-message { color: green; margin-top: 5px; }
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    line-height: 1.6;
-  }
-  .form-group {
-    margin-bottom: 15px;
-  }
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  input[type="text"],
-  input[type="email"],
-  textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  textarea {
-    min-height: 100px;
-  }
-  button {
-    background: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #45a049;
-  }
-  .hidden {
-    display: none;
-  }
-  .error {
-    color: red;
-    font-size: 0.9em;
-  }
-  .contribute-button {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: #4CAF50;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.contribute-button:hover {
-  background-color: #45a049;
-}
-.info-message {
-  color: #0066cc;
-  margin-top: 5px;
-}
-</style>
-
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    textarea {
+      min-height: 100px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .hidden {
+      display: none;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+    .contribute-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .contribute-button:hover {
+      background-color: #45a049;
+    }
+    .info-message {
+      color: #0066cc;
+      margin-top: 5px;
+    }
+    .upload-btn {
+      background: #4285F4;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .upload-btn:hover {
+      background: #3367D6;
+    }
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .preview-container img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status-message {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
   <form name="contribute" netlify action="/thank-you.html" netlify-honeypot="bot-field">
@@ -85,120 +112,96 @@
     </p>
     
     <!-- Các trường thông tin -->
-    <label>Họ tên: <input type="text" name="name" required></label>
-    <label>Email: <input type="email" name="email" required></label>
-    <label>Nội dung: <textarea name="message" required></textarea></label>
+    <div class="form-group">
+      <label>Họ tên: <input type="text" name="name" required></label>
+    </div>
+    <div class="form-group">
+      <label>Email: <input type="email" name="email" required></label>
+    </div>
+    <div class="form-group">
+      <label>Nội dung: <textarea name="message" required></textarea></label>
+    </div>
 
+    <!-- Phần upload ảnh -->
     <div class="form-group">
       <label>Ảnh đính kèm:</label>
       <button type="button" id="upload-button" class="upload-btn">Chọn ảnh (tối đa 5 ảnh)</button>
       <small class="info-message">Hỗ trợ định dạng: JPG, JPEG, PNG, WEBP, HEIC (tối đa 5MB/ảnh)</small>
       <div id="preview" class="preview-container"></div>
       <div id="upload-status" class="status-message"></div>
-      <input type="hidden" name="photo-url-optimized" id="photo-url-optimized">
     </div>
     
-    <style>
-      .upload-btn {
-        background: #4285F4;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.3s;
-      }
-      
-      .upload-btn:hover {
-        background: #3367D6;
-      }
-      
-      .preview-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 15px;
-      }
-      
-      .preview-container img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      
-      .status-message {
-        margin-top: 10px;
-        font-size: 13px;
-      }
-      
-      .info-message {
-        display: block;
-        margin-top: 5px;
-        color: #666;
-        font-size: 12px;
-      }
-    </style>
-    
-    <script>
-      // Xóa input file không sử dụng
-      document.getElementById('file-input').remove();
-    
-      // Cấu hình Cloudinary Widget với hỗ trợ nhiều định dạng
-      const widget = cloudinary.createUploadWidget({
-        cloudName: 'dmzxll8xc',
-        uploadPreset: 'glk_upload',
-        sources: ['local', 'camera'],
-        tags: ['contribute'],
-        multiple: true,
-        maxFiles: 5,
-        maxFileSize: 5000000, // 5MB
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'],
-        showAdvancedOptions: false,
-        cropping: false,
-        styles: {
-          palette: {
-            window: "#FFFFFF",
-            sourceBg: "#F4F4F5",
-            windowBorder: "#90A0B3",
-            tabIcon: "#000000",
-            inactiveTabIcon: "#555A5F",
-            menuIcons: "#555A5F",
-            link: "#0433FF",
-            action: "#339933",
-            inProgress: "#0433FF",
-            complete: "#339933",
-            error: "#CC3333",
-            textDark: "#000000",
-            textLight: "#FFFFFF"
+    <!-- Hidden fields để lưu URL ảnh -->
+    <input type="hidden" name="photo-url" id="photo-url">
+    <input type="hidden" name="photo-url-optimized" id="photo-url-optimized">
+    <input type="hidden" name="photo-html" id="photo-html">
+
+    <button type="submit">Gửi đóng góp</button>
+  </form>
+
+  <script>
+    // Khai báo widget ở phạm vi global
+    let widget;
+
+    // Hàm khởi tạo widget
+    function initializeCloudinaryWidget() {
+      return new Promise((resolve) => {
+        widget = cloudinary.createUploadWidget({
+          cloudName: 'dmzxll8xc',
+          uploadPreset: 'glk_upload',
+          sources: ['local', 'camera'],
+          tags: ['contribute'],
+          multiple: true,
+          maxFiles: 5,
+          maxFileSize: 5000000,
+          clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'],
+          showAdvancedOptions: false,
+          cropping: false,
+          styles: {
+            palette: {
+              window: "#FFFFFF",
+              sourceBg: "#F4F4F5",
+              windowBorder: "#90A0B3",
+              tabIcon: "#000000",
+              inactiveTabIcon: "#555A5F",
+              menuIcons: "#555A5F",
+              link: "#0433FF",
+              action: "#339933",
+              inProgress: "#0433FF",
+              complete: "#339933",
+              error: "#CC3333",
+              textDark: "#000000",
+              textLight: "#FFFFFF"
+            }
           }
-        }
-      }, (error, result) => {
-        const statusElement = document.getElementById('upload-status');
-        const previewElement = document.getElementById('preview');
-        
+        }, (error, result) => {
+          handleUploadResult(error, result);
+        });
+        resolve();
+      });
+    }
+
+    // Hàm xử lý kết quả upload
+    function handleUploadResult(error, result) {
+      const statusElement = document.getElementById('upload-status');
+      const previewElement = document.getElementById('preview');
+      
+      try {
         if (error) {
-          statusElement.textContent = `Lỗi: ${error.message || 'Không thể tải ảnh lên'}`;
-          statusElement.className = 'status-message error';
-          return;
+          throw new Error(error.message || 'Không thể tải ảnh lên');
         }
-    
+
         if (result && result.event === 'success') {
-          
           const optimizedUrl = `${result.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${result.info.public_id}`;
-          // Thêm ảnh vào preview với URL đã tối ưu
+          
           const img = document.createElement('img');
           img.src = optimizedUrl;
           previewElement.appendChild(img);
           
-          // Cập nhật trạng thái
           const uploadedCount = document.querySelectorAll('#preview img').length;
           statusElement.textContent = `Đã tải lên ${uploadedCount}/5 ảnh`;
           statusElement.className = 'status-message success';
           
-          // Cập nhật hidden fields
           updatePhotoFields();
         }
         
@@ -209,26 +212,50 @@
             statusElement.className = 'status-message success';
           }
         }
-      });
-    
-  function updatePhotoFields() {
+      } catch (e) {
+        console.error('Upload error:', e);
+        statusElement.textContent = `Lỗi: ${e.message}`;
+        statusElement.className = 'status-message error';
+      }
+    }
+
+    // Hàm cập nhật các trường ẩn
+    function updatePhotoFields() {
       const uploaded = widget.getUploadResults();
       const originalUrls = uploaded.map(file => file.info.secure_url);
       const optimizedUrls = uploaded.map(file => 
         `${file.info.secure_url.split('/upload/')[0]}/upload/f_webp,q_auto/${file.info.public_id}`
       );
       
-      // Lưu cả URL gốc và URL tối ưu
       document.getElementById('photo-url').value = originalUrls.join(',');
       document.getElementById('photo-url-optimized').value = optimizedUrls.join(',');
       
-      // Tạo HTML preview với ảnh tối ưu
       const html = optimizedUrls.map(url => 
         `<img src="${url}" width="200" alt="Ảnh đóng góp">`
       ).join('');
       document.getElementById('photo-html').value = html;
-      };
+    }
 
-    </script>
+    // Xử lý sự kiện click nút upload
+    document.getElementById('upload-button').addEventListener('click', async () => {
+      const statusElement = document.getElementById('upload-status');
+      statusElement.textContent = 'Đang mở trình tải lên...';
+      statusElement.className = 'status-message info';
+      
+      try {
+        if (!widget) {
+          await initializeCloudinaryWidget();
+        }
+        widget.open();
+      } catch (e) {
+        console.error('Widget initialization failed:', e);
+        statusElement.textContent = 'Lỗi: Không thể mở trình tải lên';
+        statusElement.className = 'status-message error';
+      }
+    });
+
+    // Xóa input file không sử dụng
+    document.getElementById('file-input')?.remove();
+  </script>
 </body>
 </html>
